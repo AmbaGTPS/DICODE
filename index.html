@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Referral Code Generator</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-cover bg-center bg-fixed h-screen flex justify-center items-center p-6" style="background-image: url('image.png');">
+<body style="background-image: url('image.png');" class="background-image">
 
 <div class="code-generator-container">
     <h1 class="title">GENERATE CODE</h1>
 
     <label for="codeLength" class="code-length-label">
-        Code Length: <span id="codeLengthValue" class="font-bold">8</span>
+        Code Length: <span id="codeLengthValue">8</span>
     </label>
     <input type="range" id="codeLength" min="4" max="12" value="8" oninput="handleCodeLengthChange()" class="code-length-range">
 
