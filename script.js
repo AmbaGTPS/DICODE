@@ -1,104 +1,138 @@
-const CODE_LIMIT = 3; // Set the limit to 3
+const CODE_LIMIT = 3;
+const RESET_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
-function updateLength() {
-    document.getElementById('codeLengthValue').textContent = document.getElementById('codeLength').value;
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getCurrentDate() {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+function handleCodeLengthChange() {
+    updateUI('codeLengthValue', getInputValue('codeLength'));
+}
+
+function getCurrentDateISO() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function isWithinLimit() {
+    const generationData = getGenerationData();
+    const today = getCurrentDateISO();
+    return (generationData.date === today && generationData.count < CODE_LIMIT);
+}
+
+function getGenerationData() {
+    return JSON.parse(localStorage.getItem('generatedToday')) || { date: '', count: 0, resetTime: null };
+}
+
+function resetGenerationData() {
+    localStorage.setItem('generatedToday', JSON.stringify({ date: getCurrentDateISO(), count: 0, resetTime: null }));
+}
+
+function updateCodeGenerationCount() {
+    const generationData = getGenerationData();
+    generationData.date = getCurrentDateISO();
+    generationData.count++;
+    if (generationData.count >= CODE_LIMIT) {
+        generationData.resetTime = Date.now() + RESET_INTERVAL;
+    }
+    localStorage.setItem('generatedToday', JSON.stringify(generationData));
+}
+
+function updateUI(elementId, value) {
+    document.getElementById(elementId).textContent = value;
+}
+
+function getInputValue(inputId) {
+    return document.getElementById(inputId).value;
+}
+
+function handleGenerateCode() {
+    if (!canGenerateCode()) {
+        return;
+    }
+
+    hideErrorMessage();
+    const code = generateRandomCode(getInputValue('codeLength'));
+    displayGeneratedCode(code);
+    updateCodeGenerationCount();
+    const remainingCodes = Math.max(CODE_LIMIT - getGenerationData().count, 0); // Prevent negative values
+    updateUI('limitReminder', `You can generate ${remainingCodes} more code(s) today.`);
+    showSuccessMessage("Code generated successfully!");
+}
+
+function generateRandomCode(length) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from({ length }, () => chars.charAt(getRandomInt(0, chars.length - 1))).join('');
+}
+
+function displayGeneratedCode(code) {
+    updateUI('referralCode', code);
+    showElement('copyButton');
+    showElement('sendWhatsAppButton');
+}
+
+function copyCodeToClipboard() {
+    const code = document.getElementById('referralCode').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        showSuccessMessage("Code copied to clipboard!");
+        hideElementAfterDelay('successMessage', 3000);
+    });
+}
+
+function sendCodeToWhatsApp() {
+    const code = document.getElementById('referralCode').textContent;
+    const phoneNumber = '6282225566158';
+    const message = `INI CODE AKU: ${code}`;
+    const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
 }
 
 function canGenerateCode() {
-    const generatedToday = JSON.parse(localStorage.getItem('generatedToday')) || { date: '', count: 0, resetTime: null };
-    const today = getCurrentDate();
-
-    // Check if the current date is the same as the generated date
-    if (generatedToday.date === today) {
-        // If the count is at limit, check the reset time
-        if (generatedToday.count >= CODE_LIMIT) {
-            const now = new Date().getTime();
-            const resetTime = generatedToday.resetTime;
-            if (resetTime && now < resetTime) {
-                // If the current time is less than the reset time, user can't generate
-                const remainingTime = resetTime - now;
-                displayTimer(remainingTime);
-                return false;
-            }
+    const generationData = getGenerationData();
+    const today = getCurrentDateISO();
+    if (generationData.date === today && generationData.count >= CODE_LIMIT) {
+        const remainingTime = generationData.resetTime - Date.now();
+        if (remainingTime > 0) {
+            displayTimer(remainingTime);
+            return false;
+        } else {
+            resetGenerationData();
         }
     }
-    return true; // User can generate
+    return true;
 }
 
 function displayTimer(remainingTime) {
     const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-    document.getElementById('errorMessage').textContent = `You have reached the daily limit for code generation. Try again in ${hours}h ${minutes}m ${seconds}s.`;
-    document.getElementById('errorMessage').style.display = 'block';
+    showErrorMessage(`You have reached the daily limit. Try again in ${hours}h ${minutes}m ${seconds}s.`);
+    setTimeout(() => {
+        displayTimer(remainingTime - 1000);
+    }, 1000); // Update the timer every second
 }
 
-function updateCodeGenerationCount() {
-    const generatedToday = JSON.parse(localStorage.getItem('generatedToday')) || { date: '', count: 0, resetTime: null };
-    const today = getCurrentDate();
-    
-    if (generatedToday.date !== today) {
-        generatedToday.date = today;
-        generatedToday.count = 1;
-        generatedToday.resetTime = null; // Reset the timer
-    } else {
-        generatedToday.count++;
-        // If count reaches limit, set reset time for 24 hours later
-        if (generatedToday.count >= CODE_LIMIT) {
-            generatedToday.resetTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours from now
-        }
-    }
-
-    localStorage.setItem('generatedToday', JSON.stringify(generatedToday));
+function showErrorMessage(message) {
+    document.getElementById('errorMessage').textContent = message;
+    showElement('errorMessage');
 }
 
-function generateCode() {
-    if (!canGenerateCode()) {
-        return; // Early return if the user cannot generate the code
-    }
-
-    document.getElementById('errorMessage').style.display = 'none';
-    const length = document.getElementById('codeLength').value;
-    const code = generateRandomCode(length);
-    document.getElementById('referralCode').textContent = code;
-
-    updateCodeGenerationCount();
-    document.getElementById('copyButton').style.display = 'inline-block';
-    document.getElementById('sendWhatsAppButton').style.display = 'inline-block';
-    document.getElementById('successMessage').textContent = "Code generated successfully!";
-    document.getElementById('successMessage').style.display = 'block';
-    document.getElementById('limitReminder').textContent = `You can generate ${CODE_LIMIT - JSON.parse(localStorage.getItem('generatedToday')).count} more code(s) today.`;
+function hideErrorMessage() {
+    hideElement('errorMessage');
 }
 
-function generateRandomCode(length) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+function showSuccessMessage(message) {
+    document.getElementById('successMessage').textContent = message;
+    showElement('successMessage');
 }
 
-function copyToClipboard() {
-    const codeText = document.getElementById('referralCode').textContent;
-    navigator.clipboard.writeText(codeText).then(() => {
-        document.getElementById('successMessage').textContent = "Code copied to clipboard!";
-        document.getElementById('successMessage').style.display = 'block';
-        setTimeout(() => {
-            document.getElementById('successMessage').style.display = 'none';
-        }, 3000);
-    });
+function hideElementAfterDelay(elementId, delay) {
+    setTimeout(() => hideElement(elementId), delay);
 }
 
-function sendToWhatsApp() {
-    const codeText = document.getElementById('referralCode').textContent;
-    const phoneNumber = '6282225566158'; // Replace with the actual phone number
-    const message = `INI CODE AKU: ${codeText}`;
-    const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+function showElement(elementId) {
+    document.getElementById(elementId).classList.remove('hidden');
+}
+
+function hideElement(elementId) {
+    document.getElementById(elementId).classList.add('hidden');
 }
