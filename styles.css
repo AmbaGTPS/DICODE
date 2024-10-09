@@ -1,152 +1,111 @@
-:root {
-    --container-bg: rgba(237, 237, 237, 0.9);
-    --text-color: #333333;
-    --border-color: #cccccc;
-    --button-bg: linear-gradient(135deg, #3498db, #2980b9);
-    --button-bg-hover: #2980b9;
-    --copy-btn-bg: #2ecc71;
-    --copy-btn-bg-hover: #27ae60;
-    --error-color: #e74c3c;
-    --success-color: #2ecc71;
-}
-
-body {
-    font-family: 'Roboto', sans-serif;
-    background: url('image.png') no-repeat center center fixed;
-    background-size: cover;
-    backdrop-filter: blur(10px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    background-color: var(--container-bg);
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+/* Container */
+.code-generator-container {
+    background-color: rgba(229, 231, 235, 0.9); /* gray-200 bg-opacity-90 */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 100%;
-    max-width: 400px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    max-width: 24rem;
+    transition: transform 0.3s;
 }
 
-.container:hover {
-    transform: scale(1.02);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+.code-generator-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    margin-bottom: 20px;
-    color: var(--text-color);
-    font-size: 28px;
-}
-
-.code-card {
-    font-size: 28px;
+/* Title */
+.title {
+    font-size: 1.5rem;
     font-weight: bold;
-    color: var(--text-color);
-    margin: 20px 0;
-    border-radius: 15px;
-    padding: 20px;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    color: #1f2937; /* gray-800 */
+    margin-bottom: 1.5rem;
 }
 
-.code-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+/* Code length */
+.code-length-label {
+    display: block;
+    font-size: 1rem;
+    color: #1f2937; /* gray-800 */
+    margin-bottom: 0.5rem;
+}
+
+.code-length-range {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Code display */
+.referral-code {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1f2937; /* gray-800 */
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.referral-code:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Messages */
+.error-message {
+    color: #ef4444; /* red-500 */
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.success-message {
+    color: #10b981; /* green-500 */
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.limit-reminder {
+    color: #4b5563; /* gray-600 */
+    font-size: 0.875rem;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 button {
-    background: var(--button-bg);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin: 5px;
-    width: calc(50% - 10px);
-    display: inline-block;
-    position: relative;
-    overflow: hidden;
-}
-
-button:focus {
-    outline: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    transition: transform 0.3s;
 }
 
 button:hover {
-    background: var(--button-bg-hover);
-    transform: translateY(-2px);
+    transform: translateY(-0.25rem);
 }
 
 button:active {
     transform: scale(0.95);
 }
 
-.copy-btn {
-    background-color: var(--copy-btn-bg);
-}
-
-.copy-btn:hover {
-    background-color: var(--copy-btn-bg-hover);
-}
-
-input[type="range"] {
+.generate-button {
+    background-color: #3b82f6; /* blue-500 */
+    color: white;
     width: 100%;
-    margin: 15px 0;
+    max-width: 10rem;
 }
 
-label {
-    font-size: 16px;
-    color: var(--text-color);
-    display: block;
-    margin-bottom: 5px;
-}
-
-.error-message {
-    color: var(--error-color);
-    margin: 10px 0;
-    font-size: 14px;
-    display: none;
-}
-
-.success-message {
-    color: var(--success-color);
-    margin: 10px 0;
-    font-size: 14px;
-    display: none;
-}
-
-.limit-reminder {
-    margin-top: 10px;
-    font-size: 14px;
-    color: var(--text-color);
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 24px;
-    }
-
-    .code-card {
-        font-size: 24px;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 10px;
-        width: calc(100% - 10px);
-    }
+.copy-button, .whatsapp-button {
+    background-color: #10b981; /* green-500 */
+    color: white;
+    width: 100%;
+    max-width: 10rem;
 }
